@@ -1,0 +1,156 @@
+diff --git a/cmake/Cuda.cmake b/cmake/Cuda.cmake
+index 286a428..046c0b7 100644
+--- a/cmake/Cuda.cmake
++++ b/cmake/Cuda.cmake
+@@ -222,7 +222,7 @@ endfunction()
+ ###  Non macro section
+ ################################################################################################
+ 
+-find_package(CUDA 5.5 QUIET)
++find_package(CUDA 5.5 REQUIRED)
+ find_cuda_helper_libs(curand)  # cmake 2.8.7 compartibility which doesn't search for curand
+ 
+ if(NOT CUDA_FOUND)
+diff --git a/cmake/External/gflags.cmake b/cmake/External/gflags.cmake
+index e3dba04..10d1810 100644
+--- a/cmake/External/gflags.cmake
++++ b/cmake/External/gflags.cmake
+@@ -12,7 +12,7 @@ if (NOT __GFLAGS_INCLUDED) # guard against multiple includes
+     # build directory
+     set(gflags_PREFIX ${CMAKE_BINARY_DIR}/external/gflags-prefix)
+     # install directory
+-    set(gflags_INSTALL ${CMAKE_BINARY_DIR}/external/gflags-install)
++    set(gflags_INSTALL ${CMAKE_INSTALL_PREFIX})
+ 
+     # we build gflags statically, but want to link it into the caffe shared library
+     # this requires position-independent code
+@@ -31,8 +31,8 @@ if (NOT __GFLAGS_INCLUDED) # guard against multiple includes
+       INSTALL_DIR ${gflags_INSTALL}
+       CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                  -DCMAKE_INSTALL_PREFIX=${gflags_INSTALL}
+-                 -DBUILD_SHARED_LIBS=OFF
+-                 -DBUILD_STATIC_LIBS=ON
++                 -DBUILD_SHARED_LIBS=ON
++                 -DBUILD_STATIC_LIBS=OFF
+                  -DBUILD_PACKAGING=OFF
+                  -DBUILD_TESTING=OFF
+                  -DBUILD_NC_TESTS=OFF
+@@ -46,7 +46,7 @@ if (NOT __GFLAGS_INCLUDED) # guard against multiple includes
+ 
+     set(GFLAGS_FOUND TRUE)
+     set(GFLAGS_INCLUDE_DIRS ${gflags_INSTALL}/include)
+-    set(GFLAGS_LIBRARIES ${gflags_INSTALL}/lib/libgflags.a ${CMAKE_THREAD_LIBS_INIT})
++    set(GFLAGS_LIBRARIES -lgflags ${CMAKE_THREAD_LIBS_INIT})
+     set(GFLAGS_LIBRARY_DIRS ${gflags_INSTALL}/lib)
+     set(GFLAGS_EXTERNAL TRUE)
+ 
+diff --git a/cmake/External/glog.cmake b/cmake/External/glog.cmake
+index a44672f..393037d 100644
+--- a/cmake/External/glog.cmake
++++ b/cmake/External/glog.cmake
+@@ -14,7 +14,7 @@ if (NOT __GLOG_INCLUDED)
+     # build directory
+     set(glog_PREFIX ${CMAKE_BINARY_DIR}/external/glog-prefix)
+     # install directory
+-    set(glog_INSTALL ${CMAKE_BINARY_DIR}/external/glog-install)
++    set(glog_INSTALL ${CMAKE_INSTALL_PREFIX})
+ 
+     # we build glog statically, but want to link it into the caffe shared library
+     # this requires position-independent code
+@@ -37,7 +37,7 @@ if (NOT __GLOG_INCLUDED)
+       GIT_TAG "v0.3.4"
+       UPDATE_COMMAND ""
+       INSTALL_DIR ${gflags_INSTALL}
+-      CONFIGURE_COMMAND env "CFLAGS=${GLOG_C_FLAGS}" "CXXFLAGS=${GLOG_CXX_FLAGS}" ${glog_PREFIX}/src/glog/configure --prefix=${glog_INSTALL} --enable-shared=no --enable-static=yes --with-gflags=${GFLAGS_LIBRARY_DIRS}/..
++      CONFIGURE_COMMAND env "CFLAGS=${GLOG_C_FLAGS}" "CXXFLAGS=${GLOG_CXX_FLAGS}" ${glog_PREFIX}/src/glog/configure --prefix=${glog_INSTALL} --enable-shared=yes --enable-static=no --with-gflags=${GFLAGS_LIBRARY_DIRS}/..
+       LOG_DOWNLOAD 1
+       LOG_CONFIGURE 1
+       LOG_INSTALL 1
+@@ -45,7 +45,7 @@ if (NOT __GLOG_INCLUDED)
+ 
+     set(GLOG_FOUND TRUE)
+     set(GLOG_INCLUDE_DIRS ${glog_INSTALL}/include)
+-    set(GLOG_LIBRARIES ${GFLAGS_LIBRARIES} ${glog_INSTALL}/lib/libglog.a)
++    set(GLOG_LIBRARIES ${GFLAGS_LIBRARIES} -lglog)
+     set(GLOG_LIBRARY_DIRS ${glog_INSTALL}/lib)
+     set(GLOG_EXTERNAL TRUE)
+ 
+diff --git a/include/caffe/solver.hpp b/include/caffe/solver.hpp
+index 38259ed..801f5e9 100644
+--- a/include/caffe/solver.hpp
++++ b/include/caffe/solver.hpp
+@@ -56,7 +56,7 @@ class Solver {
+   // in a non-zero iter number to resume training for a pre-trained net.
+   virtual void Solve(const char* resume_file = NULL);
+   inline void Solve(const string resume_file) { Solve(resume_file.c_str()); }
+-  void Step(int iters);
++  virtual void Step(int iters);
+   // The Restore method simply dispatches to one of the
+   // RestoreSolverStateFrom___ protected methods. You should implement these
+   // methods to restore the state from the appropriate snapshot type.
+@@ -79,6 +79,7 @@ class Solver {
+    protected:
+     virtual void on_start() = 0;
+     virtual void on_gradients_ready() = 0;
++    virtual void after_apply_update() {};
+ 
+     template <typename T>
+     friend class Solver;
+@@ -87,6 +88,22 @@ class Solver {
+   void add_callback(Callback* value) {
+     callbacks_.push_back(value);
+   }
+ 
++  inline void callbacks_on_start() {
++    for (int i = 0; i < this->callbacks_.size(); ++i) {
++      this->callbacks_[i]->on_start();
++    }
++  }
++
++  inline void callbacks_on_gradients_ready() {
++    for (int i = 0; i < this->callbacks_.size(); ++i) {
++      this->callbacks_[i]->on_gradients_ready();
++    }
++  }
++  inline void callbacks_after_apply_update() {
++    for (int i = 0; i < this->callbacks_.size(); ++i) {
++      this->callbacks_[i]->after_apply_update();
++    }
++  }
++
+   void CheckSnapshotWritePermissions();
+   /**
+    * @brief Returns the solver type.
+diff --git a/src/caffe/parallel.cpp b/src/caffe/parallel.cpp
+index 62f5d73..6cc9fd6 100644
+--- a/src/caffe/parallel.cpp
++++ b/src/caffe/parallel.cpp
+@@ -128,6 +128,8 @@ void DevicePair::compute(const vector<int> devices, vector<DevicePair>* pairs) {
+         cudaDeviceProp a, b;
+         CUDA_CHECK(cudaGetDeviceProperties(&a, remaining[i]));
+         CUDA_CHECK(cudaGetDeviceProperties(&b, remaining[j]));
++#undef UNDEF
++#ifdef UNDEF
+         if (a.isMultiGpuBoard && b.isMultiGpuBoard) {
+           if (a.multiGpuBoardGroupID == b.multiGpuBoardGroupID) {
+             pairs->push_back(DevicePair(remaining[i], remaining[j]));
+@@ -136,6 +138,7 @@ void DevicePair::compute(const vector<int> devices, vector<DevicePair>* pairs) {
+             break;
+           }
+         }
++#endif
+       }
+     }
+   }
+diff --git a/src/caffe/solver.cpp b/src/caffe/solver.cpp
+index a5ccf9c..cda291d 100644
+--- a/src/caffe/solver.cpp
++++ b/src/caffe/solver.cpp
+@@ -252,6 +252,7 @@ void Solver<Dtype>::Step(int iters) {
+       callbacks_[i]->on_gradients_ready();
+     }
+     ApplyUpdate();
++    callbacks_after_apply_update();
+ 
+     // Increment the internal iter_ counter -- its value should always indicate
+     // the number of times the weights have been updated.
