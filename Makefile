@@ -7,3 +7,6 @@ co/glog/configure:
 
 co/deep-visualization-toolbox/:
 
+DDIR:=$(HOME)/co
+$(DDIR)/opengm/CMakeLists.txt:
+	git clone https://github.com/opengm/opengm 

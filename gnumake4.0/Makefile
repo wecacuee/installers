@@ -17,9 +17,9 @@ $(SOURCE)/configure: $(SOURCE).tar.gz
 
 $(SOURCE)/Makefile: $(SOURCE)/configure $(SOURCE)/.apt-dependencies
 	cd $(SOURCE) \
-		&& ./configure --prefix=$(INSTALL_PREFIX)
+		&& ./configure --with-guile --prefix=$(INSTALL_PREFIX)
 	touch $@
 
 $(SOURCE)/.apt-dependencies: 
-	sudo apt-get install build-essential
+	sudo apt-get install build-essential guile-2.0-dev
 	touch $@
