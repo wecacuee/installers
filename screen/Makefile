@@ -1,11 +1,11 @@
 
-SOURCE:=$(HOME)/co/screen-4.4.0
-INSTALL_PREFIX:=/usr/local
+SOURCE:=/aux/dhiman/co/screen-4.4.0
+INSTALL_PREFIX:=$(HOME)/.local
 
 $(INSTALL_PREFIX)/bin/screen: $(SOURCE)/Makefile
 	cd $(SOURCE) \
 		&& make -j5 \
-		&& sudo make install
+		&& make install
 
 $(SOURCE).tar.gz:
 	wget http://ftp.gnu.org/gnu/screen/screen-4.4.0.tar.gz -O $@
