@@ -1,5 +1,7 @@
-CO:=$(HOME)/co
-IP:=$(HOME)/.local
+CO?=$(HOME)/co
+IP?=$(HOME)/.local
+PKG_CONFIG_PATH:=$(IP)/lib/pkgconfig/:$(PKG_CONFIG_PATH)
+export PKG_CONFIG_PATH
 
 
 $(CO)/.install-tree.stamp: $(CO)/.configure-tree.stamp
@@ -10,6 +12,7 @@ $(CO)/.configure-tree.stamp: $(CO)/.source-tree.stamp
 	@true
 
 install:=$(CO)/.install-%.stamp
+.PRECIOUS: $(install)
 .PHONY:
 install-%: $(install)
 	@true
@@ -20,12 +23,12 @@ $(install): $(configure)
 	if [ -f configure ]; then \
 		make -j4 install; \
 	else \
-		cd build && make -j4 install \
+		cd build && make -j4 install; \
 	fi
 	touch $@
 
 source:=$(CO)/.source-%.stamp
-.PRECIOUS:
+.PRECIOUS: $(configure) $(source)
 $(configure): $(source)
 	cd $(CO)/$*/$* && \
 	if [ -f configure ]; then \
