@@ -6,7 +6,7 @@ all: $(TMPDIR)/video_segment/build_sts/Makefile
 include $(dir $(lastword $(MAKEFILE_LIST)))/ffmpeg-install.mk
 
 .ONESHELL:
-$(TMPDIR)/video_segment/build_sts/Makefile: $(FFMPEG_INSDIR)/bin/ffmpeg $(TMPDIR)/video_segment/seg_tree_sample/CMakeLists.txt
+$(TMPDIR)/video_segment/build_sts/seg_tree_sample: $(FFMPEG_INSDIR)/bin/ffmpeg $(TMPDIR)/video_segment/seg_tree_sample/CMakeLists.txt
 	cd $(TMPDIR)/video_segment
 	mkdir -p build_sts
 	cd build_sts

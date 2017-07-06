@@ -11,6 +11,7 @@ $(FFMPEG_INSDIR)/bin/ffmpeg: $(TMPDIR)/ffmpeg-2.2.3/configure
 $(TMPDIR)/ffmpeg-2.2.3/configure: $(TMPDIR)/ffmpeg-2.2.3.tar.gz
 	cd $(TMPDIR)/
 	tar -zxvf ffmpeg-2.2.3.tar.gz
+	touch $@
 
 $(TMPDIR)/ffmpeg-2.2.3.tar.gz:
 	cd $(TMPDIR)
