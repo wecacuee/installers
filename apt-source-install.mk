@@ -1,4 +1,4 @@
-CO?=$(HOME)/co
+CO:=$(HOME)/co
 IP?=$(HOME)/.local
 PKG_CONFIG_PATH:=$(IP)/lib/pkgconfig/:$(PKG_CONFIG_PATH)
 export PKG_CONFIG_PATH
@@ -15,6 +15,9 @@ install:=$(CO)/.install-%.stamp
 .PRECIOUS: $(install)
 .PHONY:
 install-%: $(install)
+	@true
+
+%: $(install)
 	@true
 
 configure:=$(CO)/.configure-%.stamp
