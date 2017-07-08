@@ -5,5 +5,5 @@ include $(CWD)/apt-source-install.mk
 
 $(CO)/.configure-openssl.stamp: $(CO)/.source-openssl.stamp
 	cd $(CO)/openssl/openssl/ && \
-		./Configure debian-amd64 --prefix=$(IP) && \
+		./Configure --prefix=$(IP) debian-amd64 && \
 		make depend
