@@ -9,7 +9,7 @@ GLOG_DIR?=$(SOURCE_PREFIX)/glog
 $(GLOG_DIR)/configure:
 	cd $(dir $(GLOG_DIR)) && \
 		git clone https://github.com/google/glog $(GLOG_DIR)
-	cd $(GLOG_DIR) && git checkout v0.3.4
+	cd $(GLOG_DIR) && git checkout v0.3.5
 	touch $@
 
 -include gflags-install.mk
