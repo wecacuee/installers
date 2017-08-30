@@ -1,6 +1,7 @@
 ROOT_DIR?=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 INSTALL_PREFIX?=$(HOME)/co
 SOURCE_PREFIX?=$(HOME)/co
+GFLAGS_VER?=2.2.1
 
 GFLAGS_DIR?=$(SOURCE_PREFIX)/gflags
 GFLAGS_INSTALL_DIR?=$(GFLAGS_DIR)/install/
@@ -9,7 +10,7 @@ GFLAGS_INSTALLED?=$(GFLAGS_INSTALL_DIR)/include/gflags/gflags.h
 $(GFLAGS_DIR)/CMakeLists.txt: 
 	cd $(dir $(GFLAGS_DIR)) && \
 		git clone https://github.com/gflags/gflags.git $(GFLAGS_DIR)
-	cd $(GFLAGS_DIR) && git checkout v2.1.2
+	cd $(GFLAGS_DIR) && git checkout v$(GFLAGS_VER)
 	touch $@
 
 $(GFLAGS_DIR)/build/Makefile: $(GFLAGS_DIR)/CMakeLists.txt
