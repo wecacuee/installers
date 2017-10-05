@@ -1,20 +1,24 @@
 VERSION=2.3.1
-WGET:=wget
 IP?=/z/sw/packages/singularity/$(VERSION)
+BUILD?=$(HOME)/co/singularity/$(VERSION)
 
 all: $(IP)/singularity
 
-singularity-$(VERSION).tar.gz: 
-	$(WGET) https://github.com/singularityware/singularity/releases/download/$(VERSION)/singularity-$(VERSION).tar.gz -O $@
+$(BUILD)/singularity-$(VERSION).tar.gz: $(BUILD)/.mkdir
+	wget https://github.com/singularityware/singularity/releases/download/$(VERSION)/singularity-$(VERSION).tar.gz -O $@
 
-singularity-$(VERSION)/configure: singularity-$(VERSION).tar.gz
+$(BUILD)/singularity-$(VERSION)/configure: $(BUILD)/singularity-$(VERSION).tar.gz
 	tar xvf singularity-$(VERSION).tar.gz
 
-singularity-$(VERSION)/Makefile: singularity-$(VERSION)/configure
+$(BUILD)/singularity-$(VERSION)/Makefile: $(BUILD)/singularity-$(VERSION)/configure
 	cd singularity-$(VERSION) \
 		&& ./configure --prefix=$(IP)
 
-$(IP)/singularity: singularity-$(VERSION)/Makefile
+$(IP)/singularity: $(BUILD)/singularity-$(VERSION)/Makefile
 	cd singularity-$(VERSION) \
 		&& $(MAKE) \
 		&& $(MAKE) install
+
+%/.mkdir:
+	mkdir -p $(@D)
+	touch $@
