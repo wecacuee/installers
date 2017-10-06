@@ -1,10 +1,11 @@
+#!/usr/bin/make -f
 SHELL=/bin/bash -l
 ROOT_DIR?=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 INSTALL_PREFIX?=/z/sw/packages
 SOURCE_PREFIX?=$(HOME)/co
 
-OPENCV_VERSION?=3.2.0
+OPENCV_VERSION?=3.3.0
 OPENCV_DIR?=$(SOURCE_PREFIX)/opencv-$(OPENCV_VERSION)
 OPENCV_INSTALL_DIR?=$(INSTALL_PREFIX)/opencv/$(OPENCV_VERSION)/
 OPENCV_INSTALLED?=$(OPENCV_INSTALL_DIR)/lib/libopencv_core.so
@@ -33,9 +34,9 @@ $(OPENCV_DIR)/CMakeLists.txt: $(SOURCE_PREFIX)/opencv-$(OPENCV_VERSION).zip
 	touch $@
 
 $(OPENCV_DIR)/.sys-dependencies: #$(if $(isflux), ,$(CUDA_INSTALLED))
-	sudo apt-get install build-essential
-	sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
-	sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
+	# apt-get install build-essential
+	# apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+	# apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
 	echo "module load cuda numpy scipy gflags matlab" > $@
 
 $(SOURCE_PREFIX)/opencv-$(OPENCV_VERSION).zip:
