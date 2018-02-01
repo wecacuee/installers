@@ -26,6 +26,8 @@ $(OPENCV_DIR)/build/Makefile: $(OPENCV_DIR)/CMakeLists.txt $(ROOT_DIR)/Makefile 
 			 -DCUDA_USE_STATIC_CUDA_RUNTIME=OFF \
 			 -DCUDA_GENERATION=Auto \
 			 -DWITH_GSTREAMER=OFF \
+			 -DPYTHON3_INCLUDE_DIR=$${MINICONDA3_ROOT}/include/python3.6m/ \
+			 -DPYTHON3_LIBRARY=$${MINICONDA3_ROOT}/lib/libpython3.6m.so \
 			 -DWITH_VTK=OFF \
 			 -DWITH_EIGEN=OFF
 
