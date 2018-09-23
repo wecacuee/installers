@@ -3,7 +3,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 ################################################################################
 # Configuration
 ################################################################################
-INSTALL_PREFIX?=/z/sw/packages
+INSTALL_PREFIX?=$(HOME)/.local/
 SOURCE_PREFIX?=$(HOME)/co
 
 GLOG_DIR?=$(SOURCE_PREFIX)/glog

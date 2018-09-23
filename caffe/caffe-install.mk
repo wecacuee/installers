@@ -14,7 +14,7 @@ $(CAFFE_INSTALLED): $(CAFFE_DIR)/build/Makefile
 $(CAFFE_DIR)/CMakeLists.txt:
 	mkdir -p $(dir $(CAFFE_DIR))
 	cd $(dir $(CAFFE_DIR)) && git clone https://github.com/BVLC/caffe.git $(notdir $(CAFFE_DIR))
-	git checkout rc3
+	cd $(CAFFE_DIR) && git checkout rc3
 	#git checkout 64314779c040f0148cc8a3700d27fa8be9017198
 
 $(CAFFE_DIR)/.patched:
@@ -28,12 +28,9 @@ $(CAFFE_DIR)/.patched:
 -include cuda-install.mk
 -include boost-install.mk
 
-$(CAFFE_DIR)/build/Makefile: $(CAFFE_DIR)/CMakeLists.txt \
-	$(CAFFE_DIR)/.patched \
-	$(CAFFE_DIR)/.sys-dependencies
+$(CAFFE_DIR)/build/Makefile: $(CAFFE_DIR)/CMakeLists.txt
 	-mkdir -p $(CAFFE_DIR)/build
 	cd $(CAFFE_DIR)/build \
-		&& . $(CAFFE_DIR)/.sys-dependencies \
 		&& cmake .. -DCMAKE_INSTALL_PREFIX=$(CAFFE_INSTALL_DIR) \
 		-DUSE_OPENCV=On -DOpenCV_DIR=$(OPENCV_INSTALL_DIR)/share/OpenCV \
 		-DCUDNN_ROOT=$${CUDNN_ROOT}/include\;$${CUDNN_ROOT}/lib64 \

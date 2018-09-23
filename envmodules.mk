@@ -1,6 +1,6 @@
 IP=/usr/local
 SP=$(HOME)/co
-MD=/z/sw/Modules
+MD=/z/sw/Modules/default/modulefiles
 PKG=modules-4.1.2
 URL=https://sourceforge.net/projects/modules/files/Modules/modules-4.1.2/modules-4.1.2.tar.gz/download
 ENDFILE=$(IP)/bin/modulecmd
