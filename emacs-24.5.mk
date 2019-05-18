@@ -1,6 +1,11 @@
+#!/usr/bin/make -f
 
-SOURCE:=$(HOME)/co/emacs-24.5
-INSTALL_PREFIX:=/usr/local
+VER:=26.2
+SOURCE:=$(HOME)/co/emacs-$(VER)
+INSTALL_PREFIX:=/usr/local/stow/emacs-$(VER)
+
+/usr/local/bin/emacs: $(INSTALL_PREFIX)/bin/emacs
+	cd /usr/local/stow && sudo stow emacs-$(VER)
 
 $(INSTALL_PREFIX)/bin/emacs: $(SOURCE)/Makefile
 	cd $(SOURCE) \
@@ -8,22 +13,24 @@ $(INSTALL_PREFIX)/bin/emacs: $(SOURCE)/Makefile
 		&& sudo make install
 
 %.tar.xz:
-	wget https://ftp.gnu.org/gnu/emacs/emacs-24.5.tar.xz -O $@
-	touch $@
+	wget https://ftp.gnu.org/gnu/emacs/emacs-$(VER).tar.xz -O $@
+	[ -f "$@" ] && touch $@
 
-%/configure: %.tar.xz 
-	cd $(@D) && tar xvf $<
-	touch $@
+%/configure: %.tar.xz
+	mkdir -p $(<D)
+	tar xvf $< -C $(<D)
+	[ -f "$@" ] && touch $@
 
 %/configure: %.tar.gz 
 	cd $(@D) && tar xvf $<
-	touch $@
+	[ -f "$@" ] && touch $@
 
-%/Makefile: %/configure %/.apt-dependencies
+%/Makefile: %/configure #%-apt-dependencies
 	cd $(@D) \
+		&& chmod u+x ./configure \
 		&& ./configure --prefix=$(INSTALL_PREFIX)
-	touch $@
+	[ -f "$@" ] && touch $@
 
-$(SOURCE)/.apt-dependencies: 
+$(SOURCE)-apt-dependencies: 
 	sudo apt-get build-dep emacs24
 	touch $@
