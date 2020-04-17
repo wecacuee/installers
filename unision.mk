@@ -19,19 +19,19 @@ $(UNISON_STOWED): $(UNISON_INSTALLED)
 
 $(UNISON_INSTALLED): $(UNISON_DIR)/Makefile
 	eval $$(opam env) && \
-		make -C $(<D) STATIC=true NATIVE=true && \
+		make -C $(<D) STATIC=false NATIVE=true && \
 		sudo mkdir -p $(@D) && \
 		sudo mv $(<D)/src/unison $(@)
 
 
-$(UNISON_DIR)/Makefile: /home/vdhiman/.opam/4.08.0/bin/ocaml
+$(UNISON_DIR)/Makefile: /home/vdhiman/.opam/4.06.0/bin/ocaml
 	-mkdir -p $(dir $(UNISON_DIR))
 	curl -sL https://github.com/bcpierce00/unison/archive/v2.48.15v4.tar.gz | tar -C $(dir $(UNISON_DIR)) -xzf -
 	touch $@
 
-/home/vdhiman/.opam/4.08.0/bin/ocaml: /usr/local/bin/opam
-	eval $(opam env) && \
-	opam switch create 4.08.0
+/home/vdhiman/.opam/4.06.0/bin/ocaml: /usr/local/bin/opam
+	eval $$(opam env) && \
+	opam switch create 4.06.0
 
 /usr/local/bin/opam:
 	sudo bash -c "sh <(curl -sL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh)"
