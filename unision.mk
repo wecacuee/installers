@@ -2,37 +2,32 @@
 SHELL=/bin/bash -l
 ROOT_DIR?=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-UNISON_VERSION?=2.48.15v4
+UNISON_VERSION?=2.51.5
 SOURCE_PREFIX?=$(HOME)/.local/src/
-INSTALL_PREFIX?=/usr/local/
-STOW_PREFIX?=$(INSTALL_PREFIX)/stow
+INSTALL_PREFIX?=$(HOME)/.local/
 
 UNISON_DIR?=$(SOURCE_PREFIX)/unison-$(UNISON_VERSION)
-UNISON_INSTALL_DIR?=$(STOW_PREFIX)/unison-$(UNISON_VERSION)
+UNISON_INSTALL_DIR?=$(INSTALL_PREFIX)
 UNISON_INSTALLED?=$(UNISON_INSTALL_DIR)/bin/unison
-UNISON_STOWED?=$(INSTALL_PREFIX)/bin/unison
 
-unison: $(UNISON_STOWED)
+unison: $(UNISON_INSTALLED)
 
-$(UNISON_STOWED): $(UNISON_INSTALLED)
-	sudo stow --dir=$(STOW_PREFIX) --target=$(INSTALL_PREFIX) unison-$(UNISON_VERSION)
-
-$(UNISON_INSTALLED): $(UNISON_DIR)/Makefile
-	eval $$(opam env) && \
-		make -C $(<D) STATIC=false NATIVE=true && \
-		sudo mkdir -p $(@D) && \
-		sudo mv $(<D)/src/unison $(@)
+$(UNISON_INSTALLED): $(UNISON_DIR)/bin/unison
+	eval $$(opam env --switch=default) && \
+		mkdir -p $(@D) && \
+		cp $< $@
 
 
-$(UNISON_DIR)/Makefile: /home/vdhiman/.opam/4.06.0/bin/ocaml
-	-mkdir -p $(dir $(UNISON_DIR))
-	curl -sL https://github.com/bcpierce00/unison/archive/v2.48.15v4.tar.gz | tar -C $(dir $(UNISON_DIR)) -xzf -
+URL:=https://github.com/bcpierce00/unison/releases/download/v2.51.4/unison-v2.51.4+ocaml-4.12.0+x86_64.linux.tar.gz
+$(UNISON_DIR)/bin/unison:  $(HOME)/.opam/default/bin/ocaml
+	-mkdir -p $(UNISON_DIR)
+	curl -sL $(URL) | tar -C $(UNISON_DIR) -xzf -
 	touch $@
 
-/home/vdhiman/.opam/4.06.0/bin/ocaml: /usr/local/bin/opam
+$(HOME)/.opam/default/bin/ocaml: $(HOME)/.local/bin/opam
 	eval $$(opam env) && \
-	opam switch create 4.06.0
+	opam switch create 4.12.0
 
-/usr/local/bin/opam:
-	sudo bash -c "sh <(curl -sL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh)"
+$(HOME)/.local/bin/opam:
+	bash -c "sh <(curl -sL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh)"
 	echo "ny" | opam init
