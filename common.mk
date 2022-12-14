@@ -1,7 +1,7 @@
 ifndef COMMON_MK
 COMMON_MK:=1
 
-CLONEDIR?=$(HOME)/co
+CLONEDIR?=$(HOME)/Downloads/
 
 pvar-%:
 	@echo $*=$($*)

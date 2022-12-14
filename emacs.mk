@@ -3,7 +3,7 @@
 IP?=/usr/local/
 PKG:=emacs
 APTPKG:=emacs
-VER:=27.2
+VER:=28.2
 URL:=https://ftp.gnu.org/gnu/emacs/emacs-$(VER).tar.xz
 
 include common-config.mk
