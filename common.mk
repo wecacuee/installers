@@ -4,7 +4,7 @@ COMMON_MK:=1
 CLONEDIR?=$(HOME)/Downloads/
 
 pvar-%:
-	@echo $*=$($*)
+	@echo $($*)
 
 SUDO?=sudo
 IP?=/usr/local
